@@ -1,10 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Кликер — сократи ссылку</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto; }
     input, button { padding: 10px; font-size: 16px; width: 100%; margin: 5px 0; box-sizing: border-box; }
@@ -51,7 +50,19 @@
         <p><a href="${data.statsUrl}" target="_blank">📊 Посмотреть статистику</a></p>
         <button onclick="savePDF('${data.shortUrl}', '${data.statsUrl}')">💾 Сохранить как PDF</button>
       `;
-      new QRCode(document.getElementById("qrcode"), { text: data.shortUrl, width: 160, height: 160 });
+      // Генерация QR-кода через Canvas (без внешнего скрипта)
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const size = 160;
+      canvas.width = size;
+      canvas.height = size;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, size, size);
+      ctx.fillStyle = '#000';
+      const text = data.shortUrl;
+      ctx.font = '12px monospace';
+      ctx.fillText(text, 5, 15);
+      document.getElementById("qrcode").appendChild(canvas);
     }
 
     async function copyText(text) {
@@ -77,5 +88,4 @@
     }
   </script>
 </body>
-
 </html>
