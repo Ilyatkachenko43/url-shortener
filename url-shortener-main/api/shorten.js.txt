@@ -1,0 +1,49 @@
+import { nanoid } from 'nanoid';
+import pool from '../utils/db.js';
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
+
+  let url, alias;
+  try {
+    const body = JSON.parse(req.body);
+    url = body.url;
+    alias = body.alias;
+  } catch {
+    return res.status(400).json({ error: 'Invalid JSON' });
+  }
+
+  if (!url || !url.startsWith('http')) return res.status(400).json({ error: 'Invalid URL' });
+
+  const secret = nanoid(16);
+  const shortId = alias || nanoid(6);
+
+  try {
+    const client = await pool.connect();
+    const result = await client.query(
+      `INSERT INTO links (alias, target_url, secret) 
+       VALUES ($1, $2, $3) 
+       ON CONFLICT (alias) DO NOTHING
+       RETURNING alias, secret`,
+      [shortId, url, secret]
+    );
+    client.release();
+
+    if (result.rows.length === 0) {
+      return res.status(409).json({ error: 'Alias taken' });
+    }
+
+    const { alias: finalAlias, secret: finalSecret } = result.rows[0];
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'http://localhost:3000';
+
+    res.json({
+      shortUrl: `${baseUrl}/${finalAlias}`,
+      statsUrl: `${baseUrl}/stats/${finalAlias}?secret=${finalSecret}`,
+      qrData: `${baseUrl}/${finalAlias}`
+    });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
+  }
+}

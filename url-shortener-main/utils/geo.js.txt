@@ -1,0 +1,16 @@
+export async function getCountry(ip) {
+  if (!ip || ip === '127.0.0.1' || ip === '::1') return 'Local';
+  try {
+    const res = await fetch(`https://ipapi.co/${ip}/country_name/`);
+    if (res.ok) return await res.text();
+    return 'Unknown';
+  } catch {
+    return 'Unknown';
+  }
+}
+
+export function getDevice(ua) {
+  if (!ua) return 'Unknown';
+  if (/mobile|android|iphone/i.test(ua)) return 'Mobile';
+  return 'Desktop';
+}

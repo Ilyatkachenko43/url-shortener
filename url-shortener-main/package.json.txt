@@ -1,0 +1,12 @@
+{
+  "name": "url-shortener",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "pg": "^8.11.0",
+    "nanoid": "^5.0.4"
+  }
+}
