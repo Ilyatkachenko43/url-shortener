@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
+    { "src": "/stats/(.*)", "dest": "/api/stats/$1" },
+    { "src": "/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/public/index.html" }
+  ]
+}
